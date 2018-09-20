@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 using UnityStandardAssets.CrossPlatformInput;
 using Random = UnityEngine.Random;
 
-public class ShipController : NetworkBehaviour {
+public class ShipControllerTest : NetworkBehaviour {
 
     [SerializeField]float turn = 5f;
     [SerializeField] float speed = 5f;
