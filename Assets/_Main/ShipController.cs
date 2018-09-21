@@ -17,13 +17,7 @@ public class ShipController : NetworkBehaviour {
     Renderer rend;
     Vector3 colors;
 
-    public override void OnStartLocalPlayer()
-    {
-        GetComponentInChildren<Camera>().enabled = true;
-        rend = GameObject.Find("Sails").GetComponent<Renderer>();
-        colors = new Vector3(Random.value, Random.value, Random.value);
-        rend.material.color = new Color(Random.value, Random.value, Random.value, 1f);
-    }
+    
 
     void Start ()
     {
@@ -39,19 +33,18 @@ public class ShipController : NetworkBehaviour {
         }
         float h = CrossPlatformInputManager.GetAxis("Horizontal");
         float v = CrossPlatformInputManager.GetAxis("Vertical");
-        Debug.Log("H" + h + " V " + v);
 
         if (Input.GetMouseButtonDown(0))
         {
             //rb.isKinematic = true;
-            FireLeft();
+            CmdFireLeft();
             //rb.isKinematic = false;
         }
 
         if (Input.GetMouseButtonDown(1))
         {
             //rb.isKinematic = true;
-            FireRight();
+            CmdFireRight();
             //rb.isKinematic = false;
         }
 
@@ -59,7 +52,8 @@ public class ShipController : NetworkBehaviour {
         rb.AddForce(transform.right * v * speed * Time.deltaTime);
 	}
 
-    private void FireLeft()
+    [Command]
+    private void CmdFireLeft()
     {
         for (int i = 0; i < 5; i++)
         {
@@ -71,12 +65,16 @@ public class ShipController : NetworkBehaviour {
             // Add velocity to the bullet
             bullet.GetComponent<Rigidbody>().velocity = bullet.transform.forward * power;
 
+            // Spawn the bullet on the Clients
+            NetworkServer.Spawn(bullet);
+
             // Destroy the bullet after 2 seconds
-            Destroy(bullet, 2.0f);
+            Destroy(bullet, 5.0f);
         }
     }
 
-    private void FireRight()
+    [Command]
+    private void CmdFireRight()
     {
         for (int i = 5; i < 10; i++)
         {
@@ -88,8 +86,19 @@ public class ShipController : NetworkBehaviour {
             // Add velocity to the bullet
             bullet.GetComponent<Rigidbody>().velocity = bullet.transform.forward * power;
 
+            // Spawn the bullet on the Clients
+            NetworkServer.Spawn(bullet);
+
             // Destroy the bullet after 2 seconds
-            Destroy(bullet, 2.0f);
+            Destroy(bullet, 5.0f);
         }
+    }
+
+    public override void OnStartLocalPlayer()
+    {
+        GetComponentInChildren<Camera>().enabled = true;
+        rend = GameObject.Find("Sails").GetComponent<Renderer>();
+        colors = new Vector3(Random.value, Random.value, Random.value);
+        rend.material.color = new Color(Random.value, Random.value, Random.value, 1f);
     }
 }

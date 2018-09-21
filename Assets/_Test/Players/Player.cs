@@ -11,9 +11,12 @@ public class Player : NetworkBehaviour {
     private float speed = 5f;
     [SerializeField]
     private float rot = 15f;
+    [SerializeField] GameObject bulletPref;
+    [SerializeField] Transform bulletSpawn;
     private Animator anim;
     private Renderer rend;
     private Vector3 colors;
+    [SerializeField] float power = 5f;
 
     public override void OnStartLocalPlayer()
     {
@@ -38,6 +41,11 @@ public class Player : NetworkBehaviour {
             return;
         }
 
+        if (Input.GetMouseButtonDown(0))
+        {
+            CmdFireLeft();
+        }
+
         inputValue.x = CrossPlatformInputManager.GetAxis("Horizontal") * Time.deltaTime * rot;
         inputValue.y = 0f;
         inputValue.z = CrossPlatformInputManager.GetAxis("Vertical") * Time.deltaTime * speed;
@@ -50,5 +58,23 @@ public class Player : NetworkBehaviour {
         
     }
 
-    
+    [Command]
+    private void CmdFireLeft()
+    {
+        var bullet = (GameObject)Instantiate(
+            bulletPref,
+            bulletSpawn.position,
+            bulletSpawn.rotation);
+
+        // Add velocity to the bullet
+        bullet.GetComponent<Rigidbody>().velocity = bullet.transform.forward * power;
+
+        // Spawn the bullet on the Clients
+        NetworkServer.Spawn(bullet);
+
+        // Destroy the bullet after 2 seconds
+        Destroy(bullet, 5.0f);
+    }
+
+
 }
